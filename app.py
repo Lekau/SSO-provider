@@ -1,9 +1,9 @@
 from flask import Flask, request, session
 from flask_cors import CORS
 from flask_oauthlib.client import OAuth
-from flask_oauthlib.provider import OAuth2Provider
+# from flask_oauthlib.provider import OAuth2Provider
 from oauthlib.oauth2 import TokenEndpoint
-from requests_oauthlib import OAuth2Session
+# from requests_oauthlib import OAuth2Session
 from auth import auth_package
 
 app = Flask(__name__)
@@ -15,7 +15,7 @@ token_endpoint = TokenEndpoint(app, grant_types=['password'], default_token_type
 
 @app.route('/<username>')
 def index(username):
-    return session.get(username)
+    pass
 
 @app.route('/login', methods=['POST'])
 def login():
