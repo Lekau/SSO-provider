@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request,redirect, url_for, flash, session
+from flask import Flask, request, session
 from flask_cors import CORS
 from flask_oauthlib.client import OAuth
-
+from auth import auth_package
 
 app = Flask(__name__)
 CORS(app)
@@ -24,25 +24,26 @@ nerdsSSOProvider = oauth.remote_app(
 def get_oauth_token():
     return session.get('my_oauth_token')
 
-
 @app.route('/')
 def index():
     return session.get('my_oauth_token')
 
 @app.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
+    if 'username' in request.form and 'password' in request.form:
         username = request.form['username']
         password = request.form['password']
-        my_oauth_token = nerdsSSOProvider.get_access_token(username, password)
-        session[username] = (my_oauth_token.token, '')
-        return redirect(url_for('index'))
-    return "This login only works with POST requests"
+        if not auth_package.check_user_credentials(username, password):
+            return "Invalid credentials", 401
+        else:
+            my_oauth_token = nerdsSSOProvider.get_access_token(username, password)
+            session[username] = (my_oauth_token.token, '')
+            return "", 200
 
 @app.route('/logout')
 def logout():
     session.pop('my_oauth_token', None)
-    return redirect(url_for('index'))
+    return "", 200
 
 @app.route('/register', methods=['POST'])
 def signup():
