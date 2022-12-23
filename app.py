@@ -40,9 +40,9 @@ def login():
             session[username] = (my_oauth_token.token, '')
             return "", 200
 
-@app.route('/logout')
-def logout():
-    session.pop('my_oauth_token', None)
+@app.route('/logout/<username>')
+def logout(username):
+    session.pop(username, None)
     return "", 200
 
 @app.route('/register', methods=['POST'])
