@@ -1,32 +1,21 @@
 from flask import Flask, request, session
 from flask_cors import CORS
 from flask_oauthlib.client import OAuth
+from flask_oauthlib.provider import OAuth2Provider
+from oauthlib.oauth2 import TokenEndpoint
+from requests_oauthlib import OAuth2Session
 from auth import auth_package
 
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = 'sdvhkhdfbvxkjdfbkvdfbvkdvf'
 oauth = OAuth(app)
+token_endpoint = TokenEndpoint(app, grant_types=['password'], default_token_type='bearer')
 
-nerdsSSOProvider = oauth.remote_app(
-    'nerdsSSOProvider',
-    consumer_key='acsac',
-    consumer_secret='thhsfsdafa',
-    request_token_params={'scope': 'username'},
-    base_url='http://localhost:5000/',
-    request_token_url=None,
-    access_token_method='POST',
-    access_token_url='http://localhost:5000/oauth/token',
-    authorize_url='http://localhost:5000/oauth/authorize'
-)
 
-@nerdsSSOProvider.tokengetter
-def get_oauth_token():
-    return session.get('my_oauth_token')
-
-@app.route('/')
-def index():
-    return session.get('my_oauth_token')
+@app.route('/<username>')
+def index(username):
+    return session.get(username)
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -36,8 +25,10 @@ def login():
         if not auth_package.check_user_credentials(username, password):
             return "Invalid credentials", 401
         else:
-            my_oauth_token = nerdsSSOProvider.get_access_token(username, password)
-            session[username] = (my_oauth_token.token, '')
+            # client = OAuth2Session()
+            # token = client.fetch_token("https://localhost:5000", username=username, password=password, client_id=username, client_secret=password)
+            # my_oauth_token = token_endpoint.create_token_response('')
+            session[username] = (username, '')
             return "", 200
 
 @app.route('/logout/<username>')
@@ -60,6 +51,7 @@ def change_password(username):
     if 'password' in request.form:
         password = request.form['password']
         auth_package.change_password(username, password)
+        logout(username)
         return "", 200
     else:
         return "", 404
@@ -70,3 +62,7 @@ def check_auth(username):
         return "", 200
     else:
         return "", 401
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
