@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request,redirect, url_for, session
+from flask import Flask, render_template, request,redirect, url_for, flash, session
 from flask_cors import CORS
 from flask_oauthlib.client import OAuth
 
@@ -29,9 +29,15 @@ def get_oauth_token():
 def index():
     return "Default route endpoint"
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return "Login route endpoint"  
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        my_oauth_token = nerdsSSOProvider.get_access_token(username, password)
+        session['my_oauth_token'] = (my_oauth_token.token, '')
+        return redirect(url_for('index'))
+    return "This login only works with POST requests"
 
 @app.route('/logout')
 def logout():
