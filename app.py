@@ -55,9 +55,14 @@ def signup():
     else:
         return "", 404
 
-@app.route('/change-password')
-def change_password():
-    return "Change password route endpoint"
+@app.route('/change-password/<username>', methods=['POST'])
+def change_password(username):
+    if 'password' in request.form:
+        password = request.form['password']
+        auth_package.change_password(username, password)
+        return "", 200
+    else:
+        return "", 404
 
 @app.route('/check-auth/<username>', methods=['POST'])
 def check_auth(username):
