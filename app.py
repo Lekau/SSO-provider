@@ -29,13 +29,13 @@ def get_oauth_token():
 def index():
     return session.get('my_oauth_token')
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         my_oauth_token = nerdsSSOProvider.get_access_token(username, password)
-        session['my_oauth_token'] = (my_oauth_token.token, '')
+        session[username] = (my_oauth_token.token, '')
         return redirect(url_for('index'))
     return "This login only works with POST requests"
 
@@ -44,7 +44,7 @@ def logout():
     session.pop('my_oauth_token', None)
     return redirect(url_for('index'))
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def signup():
     return "Register route endpoint"
 
@@ -52,6 +52,9 @@ def signup():
 def change_password():
     return "Change password route endpoint"
 
-@app.route('/check-auth')
-def check_auth():
-    return "Check auth route endpoint"
+@app.route('/check-auth/<username>', methods=['POST'])
+def check_auth(username):
+    if username in session:
+        return "", 200
+    else:
+        return "", 401
