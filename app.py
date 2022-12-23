@@ -47,7 +47,13 @@ def logout(username):
 
 @app.route('/register', methods=['POST'])
 def signup():
-    return "Register route endpoint"
+    if 'username' in request.form and 'password' in request.form:
+        username = request.form['username']
+        password = request.form['password']
+        auth_package.create_user(username, password)
+        return "", 200
+    else:
+        return "", 404
 
 @app.route('/change-password')
 def change_password():
