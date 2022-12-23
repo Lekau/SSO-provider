@@ -27,7 +27,7 @@ def get_oauth_token():
 
 @app.route('/')
 def index():
-    return "Default route endpoint"
+    return session.get('my_oauth_token')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -41,9 +41,10 @@ def login():
 
 @app.route('/logout')
 def logout():
-    return "Logout route endpoint"
+    session.pop('my_oauth_token', None)
+    return redirect(url_for('index'))
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def signup():
     return "Register route endpoint"
 
